@@ -1,0 +1,9 @@
+api_platform:
+    resource: .
+    type: api_platform
+    prefix: /api
+
+api_assign_participations:
+    path: /api/assign/participations
+    controller: App\Controller\AssignParticipationController::actualizarParticipacion
+    methods: [POST]
