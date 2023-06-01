@@ -31,7 +31,7 @@ use Doctrine\ORM\Mapping as ORM;
         name: 'GetForCustomer'
     ),
     new Get(
-        uriTemplate: '/participations/{participationId}/{raffleId}/',
+        uriTemplate: '/participation/{participationId}/{raffleId}/',
         requirements: [
             'participationId' => '\d+',
             'raffleId' => '\d+'
