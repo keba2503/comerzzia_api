@@ -30,15 +30,6 @@ use Doctrine\ORM\Mapping as ORM;
         controller: ParticipationController::class,
         name: 'GetForCustomer'
     ),
-    new Get(
-        uriTemplate: '/participation/{participationId}/{raffleId}/',
-        requirements: [
-            'participationId' => '\d+',
-            'raffleId' => '\d+'
-        ],
-        controller: ParticipationEspecificController::class,
-        name: 'GetParticipation'
-    ),
     new Put(
         uriTemplate: '/participations/saleId/{sale_id}/customer/{customer_id}',
         requirements: [
