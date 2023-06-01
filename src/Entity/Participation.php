@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\Put;
 use App\Controller\AssignCustomerRaffleController;
 use App\Controller\AssignParticipationController;
 use App\Controller\ParticipationController;
+use App\Controller\ParticipationEspecificController;
 use App\Controller\RaffleRegisterController;
 use App\Repository\ParticipationRepository;
 use Doctrine\DBAL\Types\Types;
@@ -28,6 +29,15 @@ use Doctrine\ORM\Mapping as ORM;
         requirements: ['customer_id' => '\d+'],
         controller: ParticipationController::class,
         name: 'GetForCustomer'
+    ),
+    new Get(
+        uriTemplate: '/participations/{participationId}/{raffleId}/',
+        requirements: [
+            'participationId' => '\d+',
+            'raffleId' => '\d+'
+        ],
+        controller: ParticipationEspecificController::class,
+        name: 'GetParticipation'
     ),
     new Put(
         uriTemplate: '/participations/saleId/{sale_id}/customer/{customer_id}',
