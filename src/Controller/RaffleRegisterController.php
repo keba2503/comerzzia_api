@@ -20,11 +20,11 @@ class RaffleRegisterController extends AbstractController
         $this->participationRepository = $participationRepository;
     }
 
-    #[Route("/api/participations/register/{id}/{associated_raffle}", methods: ["PUT"])]
-    public function actualizarParticipacion(int $id, bool $associated_raffle): JsonResponse
+    #[Route("/api/participations/register/{participation_id}/{associated_raffle}", methods: ["PUT"])]
+    public function actualizarParticipacion(int $participation_id, bool $associated_raffle): JsonResponse
     {
         // Busca la participación existente por su ID
-        $participacion = $this->participationRepository->find($id);
+        $participacion = $this->participationRepository->find($participation_id);
 
         if (!$participacion) {
             return new JsonResponse(['message' => 'Participación no encontrada'], 404);
