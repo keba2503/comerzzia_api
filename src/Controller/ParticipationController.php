@@ -21,7 +21,6 @@ class ParticipationController extends AbstractController
     }
 
     #[Route("/api/participations/customer/{customerId}", name: "get_participations_by_customer")]
-
     public function getParticipationsByCustomer(string $customerId): JsonResponse
     {
         $participations = $this->entityManager->getRepository(Participation::class)->findBy(['customer_id' => $customerId]);
@@ -31,13 +30,15 @@ class ParticipationController extends AbstractController
             $response[] = [
                 'raffle_id' => $participation->getRaffleId(),
                 'participation_id' => $participation->getParticipationId(),
-                'participation_date' => $participation->getParticipationDate() ? $participation->getParticipationDate()->format('Y-m-d') : null,
+                'participation_date' => $participation->getParticipationDate() ? $participation->getParticipationDate()->format('Y-m-d H:i:s') : null,
                 'prize' => $participation->getPrize(),
                 'sale_id' => $participation->getSaleId(),
                 'coupon_code' => $participation->getCouponCode(),
                 'customer_id' => $participation->getCustomerId(),
                 'scratch' => $participation->isScratch(),
+                'scratch_date' => $participation->getScratchDate() ? $participation->getScratchDate()->format('Y-m-d H:i:s') : null,
                 'associated_raffle' => $participation->isAssociatedRaffle(),
+                'raffle_date' => $participation->getRafflehDate() ? $participation->getRafflehDate()->format('Y-m-d H:i:s') : null,
                 'store' => $participation->getStore(),
             ];
         }
