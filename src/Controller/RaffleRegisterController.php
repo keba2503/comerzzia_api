@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Participation;
 use App\Repository\ParticipationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,35 +25,40 @@ class RaffleRegisterController extends AbstractController
     public function actualizarParticipacion(int $participation_id, bool $associated_raffle): JsonResponse
     {
         // Busca la participación existente por su ID
-        $participacion = $this->participationRepository->find($participation_id);
+        $participaciones = $this->participationRepository->findBy(['participation_id' => $participation_id]);
 
-        if (!$participacion) {
+        if (empty($participaciones)) {
             return new JsonResponse(['message' => 'Participación no encontrada'], 404);
         }
 
-        // Actualiza los datos de la participación
-        $participacion->setAssociatedRaffle($associated_raffle);
-        $participacion->setRaffleDate(new \DateTime());
+        foreach ($participaciones as $participacion) {
+            // Actualiza los datos de la participación
+            $participacion->setAssociatedRaffle($associated_raffle);
+            $participacion->setRaffleDate(new \DateTime());
 
-        // Puedes actualizar más campos según sea necesario
+            $this->entityManager->persist($participacion);
+        }
 
         $this->entityManager->flush();
 
         // Prepara la respuesta con los datos actualizados de la participación
-        $respuesta = [
-            'raffle_id' => $participacion->getRaffleId(),
-            'participation_id' => $participacion->getParticipationId(),
-            'participation_date' => $participacion->getParticipationDate()?->format('Y-m-d H:i:s'),
-            'prize' => $participacion->getPrize(),
-            'sale_id' => $participacion->getSaleId(),
-            'coupon_code' => $participacion->getCouponCode(),
-            'customer_id' => $participacion->getCustomerId(),
-            'scratch' => $participacion->isScratch(),
-            'scratch_date' => $participacion->getScratchDate(),
-            'associated_raffle' => $participacion->isAssociatedRaffle(),
-            'raffle_date' => $participacion->getRafflehDate()->format('Y-m-d H:i:s'),
-            'store' => $participacion->getStore(),
-        ];
+        $respuesta = [];
+        foreach ($participaciones as $participacion) {
+            $respuesta[] = [
+                'raffle_id' => $participacion->getRaffleId(),
+                'participation_id' => $participacion->getParticipationId(),
+                'participation_date' => $participacion->getParticipationDate()?->format('Y-m-d H:i:s'),
+                'prize' => $participacion->getPrize(),
+                'sale_id' => $participacion->getSaleId(),
+                'coupon_code' => $participacion->getCouponCode(),
+                'customer_id' => $participacion->getCustomerId(),
+                'scratch' => $participacion->isScratch(),
+                'scratch_date' => $participacion->getScratchDate(),
+                'associated_raffle' => $participacion->isAssociatedRaffle(),
+                'raffle_date' => $participacion->getRaffleDate()->format('Y-m-d H:i:s'),
+                'store' => $participacion->getStore(),
+            ];
+        }
 
         return new JsonResponse($respuesta);
     }
