@@ -20,26 +20,26 @@ class AssignCustomerRaffleController extends AbstractController
         $this->participationRepository = $participationRepository;
     }
 
-    #[Route("/api/participations/{participation_id}/customer/{customer_id}", methods: ["PUT"])]
-    public function actualizarParticipacion(string $participation_id, string $customer_id): JsonResponse
+
+    #[Route("/api/participations/{participation_id}/customer/{customer_id}/{raffle_id}", methods: ["PUT"])]
+    public function actualizarParticipacion(string $participation_id, string $customer_id, string $raffle_id): JsonResponse
     {
-        // Busca la participación existente por participation_id
         $participacion = $this->participationRepository->findOneBy(['participation_id' => $participation_id]);
 
         if (!$participacion) {
             return new JsonResponse(['message' => 'Participación no encontrada'], 404);
         }
 
-        // Asigna el customer_id a la participación
-        $participacion->setCustomerId($customer_id);
+        if ($participacion->getCustomerId() !== null) {
+            return new JsonResponse(['message' => 'La participación ya tiene asignado un customer_id'], 400);
+        }
 
-        // Puedes actualizar más campos según sea necesario
+        $participacion->setCustomerId($customer_id);
 
         $this->entityManager->flush();
 
-        // Prepara la respuesta con los datos actualizados de la participación
         $respuesta = [
-            'raffle_id' => $participacion->getRaffleId(),
+            'raffle_id' => $raffle_id,
             'participation_id' => $participacion->getParticipationId(),
             'participation_date' => $participacion->getParticipationDate()?->format('Y-m-d'),
             'prize' => $participacion->getPrize(),
