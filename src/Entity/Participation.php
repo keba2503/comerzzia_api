@@ -31,10 +31,11 @@ use Doctrine\ORM\Mapping as ORM;
         name: 'GetForCustomer'
     ),
     new Put(
-        uriTemplate: '/participations/saleId/{sale_id}/customer/{customer_id}',
+        uriTemplate: '/participations/{participation_id}/customer/{customer_id}/{raffle_id}',
         requirements: [
             'sale_id' => '\d+',
-            'customer_id' => '\d+'
+            'customer_id' => '\d+',
+            'raffle_id' => '\d+'
         ],
         controller: AssignCustomerRaffleController::class,
         name: 'AssignForCustomer'
