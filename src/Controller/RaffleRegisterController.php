@@ -31,23 +31,26 @@ class RaffleRegisterController extends AbstractController
             return new JsonResponse(['message' => 'Participación no encontrada'], 404);
         }
 
-        foreach ($participaciones as $participacion) {
-            // Actualiza los datos de la participación
-            $participacion->setAssociatedRaffle($associated_raffle);
-            $participacion->setRaffleDate(new \DateTime());
-
-            $this->entityManager->persist($participacion);
-        }
-
-        $this->entityManager->flush();
-
-        // Prepara la respuesta con los datos actualizados de la participación
         $respuesta = [];
         foreach ($participaciones as $participacion) {
+            // Verifica si la participación ya está registrada en el sorteo
+            if ($participacion->isAssociatedRaffle()) {
+                $fechaRegistro = $participacion->getParticipationDate()->format('Y-m-d');
+                $respuesta[] = ['message' => 'La participación ya está registrada en el sorteo', 'participation_date' => $fechaRegistro];
+                continue;
+            }
+
+            // Actualiza los datos de la participación
+            $participacion->setAssociatedRaffle($associated_raffle);
+            $participacion->setParticipationDate(new \DateTime());
+
+            $this->entityManager->persist($participacion);
+
+            // Prepara la respuesta con los datos actualizados de la participación
             $respuesta[] = [
                 'raffle_id' => $participacion->getRaffleId(),
                 'participation_id' => $participacion->getParticipationId(),
-                'participation_date' => $participacion->getParticipationDate()?->format('Y-m-d H:i:s'),
+                'participation_date' => $participacion->getParticipationDate()->format('Y-m-d H:i:s'),
                 'prize' => $participacion->getPrize(),
                 'sale_id' => $participacion->getSaleId(),
                 'coupon_code' => $participacion->getCouponCode(),
@@ -60,6 +63,9 @@ class RaffleRegisterController extends AbstractController
             ];
         }
 
+        $this->entityManager->flush();
+
         return new JsonResponse($respuesta);
     }
+
 }
