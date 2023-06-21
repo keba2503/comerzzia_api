@@ -32,7 +32,11 @@ class RaffleRegisterController extends AbstractController
         }
 
         foreach ($participaciones as $participacion) {
-            // Actualiza los datos de la participación
+
+            if ($participacion->isAssociatedRaffle() !== null) {
+                return new JsonResponse(['message' => 'La participación ya está registrada en el sorteo'], 400);
+            }
+
             $participacion->setAssociatedRaffle($associated_raffle);
             $participacion->setRaffleDate(new \DateTime());
 
