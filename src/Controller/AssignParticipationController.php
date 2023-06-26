@@ -18,7 +18,7 @@ class AssignParticipationController extends AbstractController
         $this->entityManager = $entityManager;
     }
 
-    #[Route("/api/assign/participations", methods: ["PUT"])]
+    #[Route("/api/assign/participations", methods: ["POST"])]
     public function actualizarParticipacion(Request $request): JsonResponse
     {
         // Obtén los datos de la solicitud
