@@ -19,12 +19,10 @@ class AssignParticipationController extends AbstractController
     }
 
     #[Route("/api/assign/participations", methods: ["POST"])]
-    public function actualizarParticipacion(Request $request): JsonResponse
+    public function __invoke(Request $request): JsonResponse
     {
-        // Obtén los datos de la solicitud
         $requestData = json_decode($request->getContent(), true);
 
-        // Aquí puedes acceder a los datos proporcionados en la solicitud
         $raffleId = $requestData['raffle_id'];
         $saleId = $requestData['sale_id'];
         $numberOfParticipations = $requestData['number_of_participations'];
@@ -32,25 +30,14 @@ class AssignParticipationController extends AbstractController
         $store = $requestData['store'];
         $customerId = $requestData['customer_id'];
 
-        // Busca participaciones existentes con los campos vacíos y raffle_id igual al de la solicitud
         $participations = $this->entityManager->getRepository(Participation::class)
             ->findBy([
                 'raffle_id' => $raffleId,
                 'sale_id' => null
             ]);
 
+        $filteredParticipations = array_slice($participations, 0, $numberOfParticipations);
 
-// Filtra las participaciones que cumplen las condiciones
-        $filteredParticipations = [];
-        $count = 0;
-        foreach ($participations as $participation) {
-            if ($count < $numberOfParticipations) {
-                $filteredParticipations[] = $participation;
-                $count++;
-            }
-        }
-
-// Asigna los valores proporcionados a las participaciones filtradas
         $assignedParticipations = [];
         foreach ($filteredParticipations as $participation) {
             $participation->setSaleId($saleId);
@@ -58,8 +45,6 @@ class AssignParticipationController extends AbstractController
             $participation->setStore($store);
             $participation->setCustomerId($customerId);
             $participation->setScratch(false);
-
-            // Puedes asignar más valores según sea necesario
 
             $assignedParticipations[] = [
                 'raffle_id' => $participation->getRaffleId(),
@@ -81,7 +66,6 @@ class AssignParticipationController extends AbstractController
 
         $this->entityManager->flush();
 
-        // Prepara la respuesta con las participaciones asignadas
         $response = [
             'participations' => $assignedParticipations,
         ];
