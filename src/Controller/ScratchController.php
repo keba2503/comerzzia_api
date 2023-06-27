@@ -33,7 +33,7 @@ class ScratchController extends AbstractController
 
         foreach ($participaciones as $participacion) {
             if ($participacion->isScratch() !== null) {
-                return new JsonResponse(['message' => 'La participación ya está registrada en el sorteo'], 400);
+                return new JsonResponse(['message' => 'La participación ya está rascada'], 400);
             }
 
             $participacion->setScratch($scratch);
