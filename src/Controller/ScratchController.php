@@ -1,10 +1,13 @@
 <?php
+
 namespace App\Controller;
 
+use App\Entity\Participation;
 use App\Repository\ParticipationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ScratchController extends AbstractController
@@ -18,39 +21,48 @@ class ScratchController extends AbstractController
         $this->participationRepository = $participationRepository;
     }
 
-    #[Route("/api/participations/scratch/{id}/{scratch}", methods: ["PUT"])]
-    public function actualizarParticipacion(int $id, bool $scratch): JsonResponse
+    #[Route("/api/participations/scratch/{participation_id}/{scratch}", methods: ["PUT"])]
+    public function actualizarParticipacion(int $participation_id, bool $scratch): JsonResponse
     {
         // Busca la participación existente por su ID
-        $participacion = $this->participationRepository->find($id);
+        $participaciones = $this->participationRepository->findBy(['participation_id' => $participation_id]);
 
-        if (!$participacion) {
+        if (empty($participaciones)) {
             return new JsonResponse(['message' => 'Participación no encontrada'], 404);
         }
 
-        // Actualiza los datos de la participación
-        $participacion->setScratch($scratch);
-        $participacion->setScratchDate(new \DateTime());
+        foreach ($participaciones as $participacion) {
 
-        // Puedes actualizar más campos según sea necesario
+            if ($participacion->isScratch() !== null && $participacion->isScratch() !== false ) {
+                return new JsonResponse(['message' => 'La participación ya está rascada'], 400);
+            }
+
+            $participacion->setScratch($scratch);
+            $participacion->setScratchDate(new \DateTime());
+
+            $this->entityManager->persist($participacion);
+        }
 
         $this->entityManager->flush();
 
         // Prepara la respuesta con los datos actualizados de la participación
-        $respuesta = [
-            'raffle_id' => $participacion->getRaffleId(),
-            'participation_id' => $participacion->getParticipationId(),
-            'participation_date' => $participacion->getParticipationDate()?->format('Y-m-d H:i:s'),
-            'prize' => $participacion->getPrize(),
-            'sale_id' => $participacion->getSaleId(),
-            'coupon_code' => $participacion->getCouponCode(),
-            'customer_id' => $participacion->getCustomerId(),
-            'scratch' => $participacion->isScratch(),
-            'scratch_date' => $participacion->getScratchDate()?->format('Y-m-d H:i:s'),
-            'associated_raffle' => $participacion->isAssociatedRaffle(),
-            'raffle_date' => $participacion->getRafflehDate()?->format('Y-m-d H:i:s'),
-            'store' => $participacion->getStore(),
-        ];
+        $respuesta = [];
+        foreach ($participaciones as $participacion) {
+            $respuesta[] = [
+                'raffle_id' => $participacion->getRaffleId(),
+                'participation_id' => $participacion->getParticipationId(),
+                'participation_date' => $participacion->getParticipationDate()?->format('Y-m-d H:i:s'),
+                'prize' => $participacion->getPrize(),
+                'sale_id' => $participacion->getSaleId(),
+                'coupon_code' => $participacion->getCouponCode(),
+                'customer_id' => $participacion->getCustomerId(),
+                'scratch' => $participacion->isScratch(),
+                'scratch_date' => $participacion->getScratchDate(),
+                'associated_raffle' => $participacion->isAssociatedRaffle(),
+                'raffle_date' => $participacion->getRaffleDate()->format('Y-m-d H:i:s'),
+                'store' => $participacion->getStore(),
+            ];
+        }
 
         return new JsonResponse($respuesta);
     }

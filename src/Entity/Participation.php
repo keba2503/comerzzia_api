@@ -13,6 +13,7 @@ use App\Controller\AssignParticipationController;
 use App\Controller\ParticipationController;
 use App\Controller\ParticipationEspecificController;
 use App\Controller\RaffleRegisterController;
+use App\Controller\ScratchController;
 use App\Repository\ParticipationRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -39,6 +40,11 @@ use Doctrine\ORM\Mapping as ORM;
         ],
         controller: AssignCustomerRaffleController::class,
         name: 'AssignForCustomer'
+    ),
+    new Put(
+        uriTemplate: '/participations/scratch/{id}',
+        controller: ScratchController::class,
+        name: 'Scratch'
     ),
     new Post(
         uriTemplate: '/assign/participations',
