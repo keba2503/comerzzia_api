@@ -24,7 +24,7 @@ class ScratchController extends AbstractController
     #[Route("/api/participations/scratch/{participation_id}/{scratch}", methods: ["PUT"])]
     public function actualizarParticipacion(int $participation_id, bool $scratch): JsonResponse
     {
-        // Busca la participación existente por su ID
+// Busca la participación existente por su ID
         $participaciones = $this->participationRepository->findBy(['participation_id' => $participation_id]);
 
         if (empty($participaciones)) {
@@ -32,9 +32,8 @@ class ScratchController extends AbstractController
         }
 
         foreach ($participaciones as $participacion) {
-
-            if ($participacion->isScratch() !== null && $participacion->isScratch() !== false ) {
-                return new JsonResponse(['message' => 'La participación ya está rascada'], 400);
+            if ($participacion->isScratch() !== null) {
+                return new JsonResponse(['message' => 'La participación ya está registrada en el sorteo'], 400);
             }
 
             $participacion->setScratch($scratch);
@@ -45,21 +44,25 @@ class ScratchController extends AbstractController
 
         $this->entityManager->flush();
 
-        // Prepara la respuesta con los datos actualizados de la participación
+// Prepara la respuesta con los datos actualizados de la participación
         $respuesta = [];
         foreach ($participaciones as $participacion) {
+            $participationDate = $participacion->getParticipationDate();
+            $scratchDate = $participacion->getScratchDate();
+            $raffleDate = $participacion->getRaffleDate();
+
             $respuesta[] = [
                 'raffle_id' => $participacion->getRaffleId(),
                 'participation_id' => $participacion->getParticipationId(),
-                'participation_date' => $participacion->getParticipationDate()?->format('Y-m-d H:i:s'),
+                'participation_date' => $participationDate !== null ? $participationDate->format('Y-m-d H:i:s') : null,
                 'prize' => $participacion->getPrize(),
                 'sale_id' => $participacion->getSaleId(),
                 'coupon_code' => $participacion->getCouponCode(),
                 'customer_id' => $participacion->getCustomerId(),
                 'scratch' => $participacion->isScratch(),
-                'scratch_date' => $participacion->getScratchDate(),
+                'scratch_date' => $scratchDate !== null ? $scratchDate->format('Y-m-d H:i:s') : null,
                 'associated_raffle' => $participacion->isAssociatedRaffle(),
-                'raffle_date' => $participacion->getRaffleDate()->format('Y-m-d H:i:s'),
+                'raffle_date' => $raffleDate !== null ? $raffleDate->format('Y-m-d H:i:s') : null,
                 'store' => $participacion->getStore(),
             ];
         }

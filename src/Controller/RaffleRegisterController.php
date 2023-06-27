@@ -48,18 +48,22 @@ class RaffleRegisterController extends AbstractController
         // Prepara la respuesta con los datos actualizados de la participación
         $respuesta = [];
         foreach ($participaciones as $participacion) {
+            $participationDate = $participacion->getParticipationDate();
+            $scratchDate = $participacion->getScratchDate();
+            $raffleDate = $participacion->getRaffleDate();
+
             $respuesta[] = [
                 'raffle_id' => $participacion->getRaffleId(),
                 'participation_id' => $participacion->getParticipationId(),
-                'participation_date' => $participacion->getParticipationDate()?->format('Y-m-d H:i:s'),
+                'participation_date' => $participationDate?->format('Y-m-d H:i:s'),
                 'prize' => $participacion->getPrize(),
                 'sale_id' => $participacion->getSaleId(),
                 'coupon_code' => $participacion->getCouponCode(),
                 'customer_id' => $participacion->getCustomerId(),
                 'scratch' => $participacion->isScratch(),
-                'scratch_date' => $participacion->getScratchDate(),
+                'scratch_date' => $scratchDate?->format('Y-m-d H:i:s'),
                 'associated_raffle' => $participacion->isAssociatedRaffle(),
-                'raffle_date' => $participacion->getRaffleDate()->format('Y-m-d H:i:s'),
+                'raffle_date' => $raffleDate?->format('Y-m-d H:i:s'),
                 'store' => $participacion->getStore(),
             ];
         }
